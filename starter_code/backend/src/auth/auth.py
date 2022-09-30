@@ -65,6 +65,21 @@ def get_token_auth_header():
     it should raise an AuthError if the requested permission string is not in the payload permissions array
     return true otherwise
 '''
+def check_permissions(permission, payload):
+    #We check if permissions' are included in the payload
+    if 'permissions' not in payload:
+        raise AuthError({
+            'code': 'No permission',
+            'description': 'There is no permission in the payload.'
+        }, 400)
+
+    if permission not in payload['permissions']:
+        raise AuthError({
+            'code': 'No permission',
+            'description': 'The requested permission string is not in the payload.'
+        }, 403)
+
+    return True
 
 
 
@@ -81,7 +96,6 @@ def get_token_auth_header():
 
     !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
 '''
-
 
 '''
 @TODO implement @requires_auth(permission) decorator method
