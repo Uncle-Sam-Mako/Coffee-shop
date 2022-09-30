@@ -17,7 +17,7 @@ CORS(app)
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 !! Running this funciton will add one
 '''
-# db_drop_and_create_all()
+db_drop_and_create_all()
 
 # ROUTES
 '''
@@ -28,6 +28,16 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks', methods=['GET'])
+def get_drinks():
+    selection = Drink.query.order_by(Drink.id).all()
+    drinks = [drink.short() for drink in selection]
+    if(len(selection) == 0):
+        abort(404)
+    return jsonify({
+        'success' : True,
+        "drinks": drinks
+    })
 
 
 '''
@@ -38,6 +48,17 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks-detail')
+@requires_auth('get:drinks-detail')
+def get_drinks_detail(payload):
+    selection = Drink.query.order_by(Drink.id).all()
+    drinks = [drink.long() for drink in selection]
+    if(len(selection) == 0):
+        abort(404)
+    return jsonify({
+        'success' : True,
+        "drinks": drinks
+    })
 
 
 '''
@@ -91,6 +112,7 @@ def unprocessable(error):
     }), 422
 
 
+
 '''
 @TODO implement error handlers using the @app.errorhandler(error) decorator
     each error handler should return (with approprate messages):
@@ -112,3 +134,10 @@ def unprocessable(error):
 @TODO implement error handler for AuthError
     error handler should conform to general task above
 '''
+@app.errorhandler(AuthError)
+def unauthorized(AuthError):
+    return jsonify({
+        "success": False,
+        "error": AuthError.error['code'],
+        "message": AuthError.error['description']
+    }), AuthError.status_code
