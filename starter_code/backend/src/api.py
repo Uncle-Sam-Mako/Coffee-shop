@@ -110,7 +110,12 @@ def post_drinks(payload):
 @app.route('/drinks/<int:drink_id>', methods=['PATCH'])
 @requires_auth('patch:drinks')
 def patch_drinks(payload, drink_id):
-    selected_drink = Drink.query.get(drink_id)    
+    selected_drink = Drink.query.get(drink_id)  
+
+    #If id is not found in database  
+    if not(selected_drink):
+        abort(404)
+
     body = request.get_json()
 
     title = body.get('title', None)
@@ -120,8 +125,8 @@ def patch_drinks(payload, drink_id):
     try:
         if title : selected_drink.title = title
         if recipe : selected_drink.recipe = recipe_str
-        
-        drink = selected_drink.long()
+
+        drink = [selected_drink.long()]
         return jsonify({
             "success": True,
             "drinks": drink
@@ -139,7 +144,24 @@ def patch_drinks(payload, drink_id):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:drink_id>', methods=['DELETE'])
+@requires_auth('delete:drinks')
+def delete_drinks(payload, drink_id):
+    selected_drink = Drink.query.get(drink_id)    
 
+    #If id is not found in database  
+    if not(selected_drink):
+        abort(404)
+
+    try:
+        selected_drink.delete()
+        
+        return jsonify({
+            "success": True,
+            "delete": drink_id
+        })
+    except:
+        abort(422)
 
 # Error Handling
 '''
@@ -168,10 +190,18 @@ def unprocessable(error):
 
 '''
 
+
 '''
 @TODO implement error handler for 404
     error handler should conform to general task above
 '''
+@app.errorhandler(404)
+def notFound(error):
+    return jsonify({
+        "success": False,
+        "error": 404,
+        "message": "resource not found"
+    }), 404
 
 
 '''
