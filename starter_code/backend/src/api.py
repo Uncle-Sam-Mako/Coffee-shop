@@ -107,7 +107,27 @@ def post_drinks(payload):
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:drink_id>', methods=['PATCH'])
+@requires_auth('patch:drinks')
+def patch_drinks(payload, drink_id):
+    selected_drink = Drink.query.get(drink_id)    
+    body = request.get_json()
 
+    title = body.get('title', None)
+    recipe = body.get('recipe', None)
+    recipe_str = json.dumps(recipe) #To convert the Python object into a json string.
+
+    try:
+        if title : selected_drink.title = title
+        if recipe : selected_drink.recipe = recipe_str
+        
+        drink = selected_drink.long()
+        return jsonify({
+            "success": True,
+            "drinks": drink
+        })
+    except:
+        abort(422)
 
 '''
 @TODO implement endpoint
