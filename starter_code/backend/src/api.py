@@ -75,8 +75,7 @@ def get_drinks_detail(payload):
 def post_drinks(payload):
 
     body = request.get_json()
-
-    print(body)
+    
     title = body['title']
     recipe = body['recipe']
     recipe_str = json.dumps(recipe) #To convert the Python object into a json string.
