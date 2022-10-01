@@ -73,10 +73,28 @@ def get_drinks_detail(payload):
 @app.route('/drinks', methods=['POST'])
 @requires_auth('post:drinks')
 def post_drinks(payload):
+
     body = request.get_json()
 
-    title = body.get('title')
-    recipe = body.get('recipe')
+    print(body)
+    title = body['title']
+    recipe = body['recipe']
+    recipe_str = json.dumps(recipe) #To convert the Python object into a json string.
+    new_drink = Drink(title=title, recipe=recipe_str)
+
+    try:
+        new_drink.insert()
+        drink = new_drink.long()
+        return jsonify({
+            "success": True,
+            "drinks": drink
+        })
+    except:
+        abort(422)
+
+        
+    
+   
 
 '''
 @TODO implement endpoint
