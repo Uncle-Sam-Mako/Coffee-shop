@@ -86,7 +86,7 @@ def post_drinks(payload):
         drink = new_drink.long()
         return jsonify({
             "success": True,
-            "drinks": drink
+            "drinks": [drink]
         })
     except:
         abort(422)
